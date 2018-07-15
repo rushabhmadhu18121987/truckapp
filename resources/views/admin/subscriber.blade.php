@@ -51,7 +51,7 @@
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb">
                             <li><a href="index.html"><i class="icon-home2 position-left"></i> Home</a></li>
-                            <li class="active">User List</li>
+                            <li class="active">Subscribers</li>
                         </ul>
                     </div>
                 </div>
@@ -73,14 +73,14 @@
                                             <h4>Total Number of Users is: {{count($users)}}</h4>
                                         </div> --}}
                                         <div class="panel-body table-responsive" style="padding-top: 20px;">
-                                            <table class="table datatable-button-html5-basic" id="UserListdataTable">
+                                            <table class="table datatable-button-html5-basic" id="subscriberTable">
                                                 <thead>
                                                     <tr>
                                                     <th>Id</th>
                                                     <th>Firstname</th>
                                                     <th>Lastname</th>
                                                     <th>Created At</th>
-                                                    <th>Action</th>
+                                                    <!-- <th>Action</th> -->
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -120,28 +120,6 @@
         <!-- /page content -->
 
     </div>
-<!-- Start - Modal -->
-<div id="userdetails_modal" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Modal Header</h4>
-      </div>
-      <div class="modal-body">
-        <table id="userdetails">
-          
-        </table>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-<!-- End - Modal -->
 <!-- Theme JS files -->
 <script type="text/javascript" src="{{ asset('admin_assets/js/plugins/tables/datatables/datatables.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('admin_assets/js/plugins/forms/selects/select2.min.js') }}"></script>
@@ -154,29 +132,7 @@
 	<!-- <script type="text/javascript" src="{{ asset('admin_assets/js/pages/datatables_extension_buttons_html5.js') }}"></script> -->
     <!-- theme JS files -->
 <script>
-  /*$(document).ready(function () {
-        //$('#UserListdataTable').DataTable().destroy();
-        $('#UserListdataTable').DataTable({
-            "processing": true,
-            "serverSide": true,
-            "ajax":{
-                    "url": "{{ url('allusers') }}",
-                    "dataType": "json",
-                    "type": "POST",
-                    "data":{ _token: "{{csrf_token()}}"}
-                  },
-            "columns": [
-                { "data": "id" },
-                { "data": "firstname" },
-                { "data": "lastname" },
-                { "data": "created_at" },
-                { "data": "action" }
-            ]	 
-            
-      });
-  });*/
   $(function() {
-    
     // Setting datatable defaults
     $.extend( $.fn.dataTable.defaults, {
         autoWidth: false,
@@ -187,24 +143,21 @@
             paginate: { 'first': 'First', 'last': 'Last', 'next': '&rarr;', 'previous': '&larr;' }
         }
     });
-
-
-    // Basic initialization
-    $('#UserListdataTable').DataTable({
+    $('#subscriberTable').DataTable({
         "processing": true,
         "serverSide": true,
         "ajax":{
-                "url": "{{ url('allusers') }}",
-                "dataType": "json",
-                "type": "POST",
-                "data":{ _token: "{{csrf_token()}}"}
+                  "url": "{{ url('subscribersList') }}",
+                  "dataType": "json",
+                  "type": "POST",
+                  "data":{ _token: "{{csrf_token()}}"}
                 },
         "columns": [
             { "data": "id" },
             { "data": "firstname" },
             { "data": "lastname" },
             { "data": "created_at" },
-            { "data": "action" }
+            //{ "data": "action" }
         ],
         buttons: {            
             dom: {
@@ -219,40 +172,7 @@
                 'pdfHtml5'
             ]
         }
-    });
-});
-function statusChange(status, id) {
-  var url = 'statusChange';
-  $.ajax({
-      type: "POST",
-      url: url,
-      dataType: "json",
-      data: {'id':id,'status':status, "_token": "{{ csrf_token() }}"},
-      success: function(data){
-        location.reload();
-      }
+      });
   });
-}
-
-function showUserDetails(id) {
-  var url = 'showUserDetails';
-  $.ajax({
-      type: "POST",
-      url: url,
-      dataType: "json",
-      data: {'id':id, "_token": "{{ csrf_token() }}"},
-      success: function(data){
-        $('#userdetails').html('');
-        var html = "";
-        html += '';
-        $('#userdetails').html(data);
-        $('#userdetails_modal').modal('show');
-      }
-  });
-}
-
-/*"headers": {
-              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-          },*/
 </script>
 @endsection

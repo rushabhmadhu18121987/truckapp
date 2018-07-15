@@ -24,3 +24,5 @@ Route::post('allusers', 'UserController@allusers' )->name('allusers');
 //Route::get('statusChange/{status}/{id}', 'UserController@statusChange' )->name('statusChange');
 Route::post('statusChange', 'UserController@statusChange' )->name('statusChange');
 Route::post('showUserDetails', 'UserController@showUserDetails' )->name('showUserDetails');
+Route::get('subscribers', 'SubscriberController@index');
+Route::post('subscribersList', 'SubscriberController@subscribersList' )->name('subscribersList');
