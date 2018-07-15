@@ -39,11 +39,6 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-    public function login()
-    {   $data = array('test'=>"Welcome");
-        return response()->json($data);
-    }
-
     public function logout(Request $request) {
         $this->guard()->logout();
         $request->session()->invalidate();
