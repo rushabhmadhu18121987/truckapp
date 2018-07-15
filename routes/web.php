@@ -19,3 +19,8 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/logout', 'Auth\LoginController@logout');
+Route::get('users', 'UserController@index');
+Route::post('allusers', 'UserController@allusers' )->name('allusers');
+//Route::get('statusChange/{status}/{id}', 'UserController@statusChange' )->name('statusChange');
+Route::post('statusChange', 'UserController@statusChange' )->name('statusChange');
+Route::post('showUserDetails', 'UserController@showUserDetails' )->name('showUserDetails');
