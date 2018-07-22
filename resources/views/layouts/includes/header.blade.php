@@ -11,11 +11,11 @@
             @if(Auth::user())
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                    <!-- <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="icon-bubbles4"></i>
                         <span class="visible-xs-inline-block position-right">Messages</span>
                         <span class="badge bg-warning-400">2</span>
-                    </a>
+                    </a> -->
                     
                     <div class="dropdown-menu dropdown-content width-350">
                         <div class="dropdown-content-heading">
@@ -58,11 +58,11 @@
                     </a>
 
                     <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="#"><i class="icon-user-plus"></i> My profile</a></li>
+                        <!-- <li><a href="#"><i class="icon-user-plus"></i> My profile</a></li>
                         <li><a href="#"><i class="icon-coins"></i> My balance</a></li>
                         <li><a href="#"><span class="badge bg-teal-400 pull-right">58</span> <i class="icon-comment-discussion"></i> Messages</a></li>
                         <li class="divider"></li>
-                        <li><a href="#"><i class="icon-cog5"></i> Account settings</a></li>
+                        <li><a href="#"><i class="icon-cog5"></i> Account settings</a></li> -->
                         <li><a href="{{ url('logout') }}"><i class="icon-switch2"></i> Logout</a></li>
                     </ul>
                 </li>
