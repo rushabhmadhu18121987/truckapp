@@ -35,7 +35,6 @@ class Orders extends Migration
             $table->string('insurance_charge')->nullable();
             $table->string('other_charge')->nullable();
             $table->string('message')->nullable();
-            $table->string('message')->nullable();
             $table->string('confirmation')->nullable();
             $table->string('status')->nullable();
             $table->timestamps();
