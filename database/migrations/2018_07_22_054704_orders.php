@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Vehicles extends Migration
+class Orders extends Migration
 {
     /**
      * Run the migrations.
@@ -14,17 +14,17 @@ class Vehicles extends Migration
     public function up()
     {
         //
-        Schema::create('vehicles', function (Blueprint $table) {
+        Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id');
-            $table->string('title')->nullable();
-            $table->string('type')->nullable();
-            $table->string('make')->nullable();
-            $table->string('model')->nullable();
-            $table->string('color')->nullable();
-            $table->string('photo')->nullable();
-            $table->string('vehicle_condition')->nullable();
-            $table->string('hours_price')->nullable();
+            $table->string('vehicle_id')->nullable();
+            $table->string('pickup')->nullable();
+            $table->string('drop_off')->nullable();
+            $table->string('pickup_lat')->nullable();
+            $table->string('pickup_lng')->nullable();
+            $table->string('dropoff_lat')->nullable();
+            $table->string('dropoff_lng')->nullable();
+            $table->string('selected_mode')->nullable();
             $table->string('daily_price')->nullable();
             $table->string('weekly_price')->nullable();
             $table->string('mothly_price')->nullable();
@@ -40,7 +40,7 @@ class Vehicles extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('orders');
         //
-        Schema::dropIfExists('vehicles');
     }
 }
