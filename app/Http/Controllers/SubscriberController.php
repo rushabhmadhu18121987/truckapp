@@ -31,13 +31,13 @@ class SubscriberController extends Controller
     {
       $columns = array( 
           0 =>'id', 
-          1 =>'firstname',
-          2=> 'lastname',
+          1 =>'fullname',
+          2=> 'email',
           3=> 'created_at',
           //4=> 'action',
       );
 
-      $totalData = DB::table('users')->where('is_subscribers',1)->count();
+      $totalData = DB::table('users')->where('is_subscribers','1')->count();
 
       $totalFiltered = $totalData; 
 
@@ -49,7 +49,7 @@ class SubscriberController extends Controller
       if(empty($request->input('search.value')))
       {            
           $posts = DB::table('users')
-                  ->where('is_subscribers',1)
+                  ->where('is_subscribers','1')
                   ->offset($start)
                   ->limit($limit)
                   ->orderBy($order,$dir)
@@ -59,20 +59,24 @@ class SubscriberController extends Controller
           $search = $request->input('search.value'); 
 
           $posts = DB::table('users')
-                      ->where('is_subscribers',1)
-                      ->where('id','LIKE',"%{$search}%")
-                      ->orWhere('firstname', 'LIKE',"%{$search}%")
-                      ->orWhere('lastname', 'LIKE',"%{$search}%")
+                      ->where('is_subscribers','1')
+                      ->where(function ($query) use ($search){
+                            $query->where('id', 'LIKE', "%{$search}%");
+                            $query->orWhere('firstname', 'LIKE',"%{$search}%");
+                            $query->orWhere('lastname', 'LIKE',"%{$search}%");
+                        })
                       ->offset($start)
                       ->limit($limit)
                       ->orderBy($order,$dir)
                       ->get();
 
           $totalFiltered = DB::table('users')
-                      ->where('is_subscribers',1)
-                      ->where('id','LIKE',"%{$search}%")
-                      ->orWhere('firstname', 'LIKE',"%{$search}%")
-                      ->orWhere('lastname', 'LIKE',"%{$search}%")
+                      ->where('is_subscribers','1')
+                      ->where(function ($query) use ($search){
+                            $query->where('id', 'LIKE', "%{$search}%");
+                            $query->orWhere('firstname', 'LIKE',"%{$search}%");
+                            $query->orWhere('lastname', 'LIKE',"%{$search}%");
+                        })
                       ->count();
       }
 
@@ -87,8 +91,8 @@ class SubscriberController extends Controller
               $edit =  '';
 
               $nestedData['id'] = $post->id;
-              $nestedData['firstname'] = $post->firstname;
-              $nestedData['lastname'] = substr(strip_tags($post->lastname),0,50)."...";
+              $nestedData['fullname'] = $post->firstname.' '.$post->lastname;
+              $nestedData['email'] = $post->email;//substr(strip_tags($post->lastname),0,50)."...";
               $nestedData['created_at'] = date('j M Y h:i a',strtotime($post->created_at));
               //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
               //$stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";

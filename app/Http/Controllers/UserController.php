@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use URL;
 
 class UserController extends Controller
 {
@@ -30,10 +31,10 @@ class UserController extends Controller
     public function allusers(Request $request)
     {
         $columns = array( 
-            0 =>'id', 
-            1 =>'firstname',
-            2=> 'lastname',
-            3=> 'created_at',
+            0 =>'profile_image', 
+            1 =>'fullname',
+            2=> 'email',
+            3=> 'mobile',
             4=> 'action',
         );
 
@@ -56,18 +57,28 @@ class UserController extends Controller
         else {
             $search = $request->input('search.value'); 
 
-            $posts = DB::table('users')->where('id','LIKE',"%{$search}%")
-                        ->orWhere('firstname', 'LIKE',"%{$search}%")
-                        ->orWhere('lastname', 'LIKE',"%{$search}%")
+            $posts = DB::table('users')
+                        ->where(function ($query) use ($search){
+                            $query->where('id', 'LIKE', "%{$search}%");
+                            $query->orWhere('firstname', 'LIKE',"%{$search}%");
+                            $query->orWhere('lastname', 'LIKE',"%{$search}%");
+                            $query->orWhere('email', 'LIKE',"%{$search}%");
+                            $query->orWhere('mobile', 'LIKE',"%{$search}%");
+                        })
                         ->offset($start)
                         ->limit($limit)
                         ->orderBy($order,$dir)
                         ->get();
 
-            $totalFiltered = DB::table('users')->where('id','LIKE',"%{$search}%")
-                        ->orWhere('firstname', 'LIKE',"%{$search}%")
-                        ->orWhere('lastname', 'LIKE',"%{$search}%")
-                        ->count();
+            $totalFiltered = DB::table('users')
+                                ->where(function ($query) use ($search){
+                                    $query->where('id', 'LIKE', "%{$search}%");
+                                    $query->orWhere('firstname', 'LIKE',"%{$search}%");
+                                    $query->orWhere('lastname', 'LIKE',"%{$search}%");
+                                    $query->orWhere('email', 'LIKE',"%{$search}%");
+                                    $query->orWhere('mobile', 'LIKE',"%{$search}%");
+                                })
+                                ->count();
         }
 
         $data = array();
@@ -79,15 +90,19 @@ class UserController extends Controller
                 //$edit =  route('posts.edit',$post->id);
                 $show =  '';
                 $edit =  '';
-
-                $nestedData['id'] = $post->id;
-                $nestedData['firstname'] = $post->firstname;
-                $nestedData['lastname'] = substr(strip_tags($post->lastname),0,50)."...";
-                $nestedData['created_at'] = date('j M Y h:i a',strtotime($post->created_at));
+                if(trim($post->profile_image) == ''){
+                    $nestedData['profile_image'] = '<img src="noimage.png" width="75px" >';
+                }else{
+                    $img = URL::to('/uploads/profile').'/'.$post->profile_image;
+                    $nestedData['profile_image'] = "<img src='{$img}' width='75px' >";
+                }                
+                $nestedData['fullname'] = $post->firstname.' '.$post->lastname;
+                $nestedData['email'] = $post->email;//substr(strip_tags(),0,50)."...";
+                $nestedData['mobile'] = $post->mobile;
                 //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
                 $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";
-                $nestedData['action'] = "&emsp;<a href='javescript:void(0);' title='SHOW' onclick='showUserDetails({$post->id})'><span class='glyphicon glyphicon-eye-open'></span></a> 
-                &emsp;<a href='{$edit}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
+                // $nestedData['action'] = "&emsp;<a href='javescript:void(0);' title='SHOW' onclick='showUserDetails({$post->id})'><span class='glyphicon glyphicon-eye-open'></span></a>&emsp;";
+                $nestedData['action'] = $stat;
                 $data[] = $nestedData;
 
             }

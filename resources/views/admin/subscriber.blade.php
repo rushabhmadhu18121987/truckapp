@@ -56,8 +56,8 @@
                                                 <thead>
                                                     <tr>
                                                     <th>Id</th>
-                                                    <th>Firstname</th>
-                                                    <th>Lastname</th>
+                                                    <th>Fullname</th>
+                                                    <th>Email</th>
                                                     <th>Created At</th>
                                                     <!-- <th>Action</th> -->
                                                     </tr>
@@ -133,8 +133,8 @@
                 },
         "columns": [
             { "data": "id" },
-            { "data": "firstname" },
-            { "data": "lastname" },
+            { "data": "fullname" },
+            { "data": "email" },
             { "data": "created_at" },
             //{ "data": "action" }
         ],

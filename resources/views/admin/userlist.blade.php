@@ -55,10 +55,10 @@
                                             <table class="table datatable-button-html5-basic" id="UserListdataTable">
                                                 <thead>
                                                     <tr>
-                                                    <th>Id</th>
-                                                    <th>Firstname</th>
-                                                    <th>Lastname</th>
-                                                    <th>Created At</th>
+                                                    <th>Profile Photo</th>
+                                                    <th>Fullname</th>
+                                                    <th>Email</th>
+                                                    <th>Mobile Number</th>
                                                     <th>Action</th>
                                                     </tr>
                                                 </thead>
@@ -179,10 +179,10 @@
                 "data":{ _token: "{{csrf_token()}}"}
                 },
         "columns": [
-            { "data": "id" },
-            { "data": "firstname" },
-            { "data": "lastname" },
-            { "data": "created_at" },
+            { "data": "profile_image" },
+            { "data": "fullname" },
+            { "data": "email" },
+            { "data": "mobile" },
             { "data": "action" }
         ],
         buttons: {            
