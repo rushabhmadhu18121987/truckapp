@@ -33,3 +33,5 @@ Route::get('editCategory/{id}', 'VehicleCategoryController@editCategory' )->name
 Route::post('updateCategory', 'VehicleCategoryController@updateCategory' )->name('updateCategory');
 Route::get('newCategory', 'VehicleCategoryController@newCategory' )->name('newCategory');
 Route::post('addCategory', 'VehicleCategoryController@addCategory' )->name('addCategory');
+Route::get('orders', 'OrderController@index');
+Route::post('orderList', 'OrderController@orderList' )->name('orderList');
