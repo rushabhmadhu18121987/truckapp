@@ -35,3 +35,6 @@ Route::get('newCategory', 'VehicleCategoryController@newCategory' )->name('newCa
 Route::post('addCategory', 'VehicleCategoryController@addCategory' )->name('addCategory');
 Route::get('orders', 'OrderController@index');
 Route::post('orderList', 'OrderController@orderList' )->name('orderList');
+Route::get('promocode', 'PromocodeController@index');
+Route::post('promocodeList', 'PromocodeController@promocodeList' )->name('promocodeList');
+Route::post('promocodeStatusChange', 'PromocodeController@promocodeStatusChange' )->name('promocodeStatusChange');

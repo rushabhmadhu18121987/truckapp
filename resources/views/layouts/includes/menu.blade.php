@@ -36,11 +36,11 @@
             </li>
             <li <?php echo (Request::segment(1) == 'subscribers') ? 'class="active"' : ""; ?>><a href="{{ url('subscribers') }}"><i class="icon-droplet2"></i> <span>Subscribers</span></a></li>
             <li <?php echo (Request::segment(1) == 'vehicleCat') ? 'class="active"' : ""; ?>><a href="{{ url('vehicleCat') }}"><i class="icon-droplet2"></i> <span>Vehicle Category</span></a></li>
-            <li><a href="#"><i class="icon-droplet2"></i> <span>Plans</span></a></li>
+            <li <?php echo (Request::segment(1) == 'promocode') ? 'class="active"' : ""; ?>><a href="{{ url('promocode') }}"><i class="icon-droplet2"></i> <span>Promo codes</span></a></li>
             <li <?php echo (Request::segment(1) == 'orders') ? 'class="active"' : ""; ?>><a href="{{ url('orders') }}"><i class="icon-stack"></i> <span>Orders</span></a></li>
-            <li><a href="#"><i class="icon-pencil3"></i> <span>Account Settings</span></a></li>
+            <!-- <li><a href="#"><i class="icon-pencil3"></i> <span>Account Settings</span></a></li>
             <li><a href="#"><i class="icon-file-css"></i> <span>Roles</span></a></li>
-            <li><a href="#"><i class="icon-spell-check"></i> <span>Report</span></a>
+            <li><a href="#"><i class="icon-spell-check"></i> <span>Report</span></a> -->
             </li>
         </ul>
     </div>

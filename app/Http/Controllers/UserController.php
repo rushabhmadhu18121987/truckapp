@@ -31,11 +31,13 @@ class UserController extends Controller
     public function allusers(Request $request)
     {
         $columns = array( 
-            0 =>'profile_image', 
+            0 => 'id',
             1 =>'fullname',
             2=> 'email',
             3=> 'mobile',
-            4=> 'action',
+            4 =>'profile_image', 
+            5 =>'license', 
+            6=> 'action',
         );
 
         $totalData = DB::table('users')->count();
@@ -84,27 +86,31 @@ class UserController extends Controller
         $data = array();
         if(!empty($posts))
         {
+            $i = 1;
             foreach ($posts as $post)
             {
                 //$show =  route('posts.show',$post->id);
                 //$edit =  route('posts.edit',$post->id);
                 $show =  '';
                 $edit =  '';
+                               
+                $nestedData['id'] = $i;
+                $nestedData['fullname'] = $post->firstname.' '.$post->lastname;
+                $nestedData['email'] = $post->email;//substr(strip_tags(),0,50)."...";
+                $nestedData['mobile'] = $post->mobile;
                 if(trim($post->profile_image) == ''){
                     $nestedData['profile_image'] = '<img src="noimage.png" width="75px" >';
                 }else{
                     $img = URL::to('/uploads/profile').'/'.$post->profile_image;
                     $nestedData['profile_image'] = "<img src='{$img}' width='75px' >";
-                }                
-                $nestedData['fullname'] = $post->firstname.' '.$post->lastname;
-                $nestedData['email'] = $post->email;//substr(strip_tags(),0,50)."...";
-                $nestedData['mobile'] = $post->mobile;
+                } 
+                $nestedData['license'] = '<a href="'.$post->driving_licence_doc.'" target="_blanck">View License</a>';
                 //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
                 $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";
                 // $nestedData['action'] = "&emsp;<a href='javescript:void(0);' title='SHOW' onclick='showUserDetails({$post->id})'><span class='glyphicon glyphicon-eye-open'></span></a>&emsp;";
                 $nestedData['action'] = $stat;
                 $data[] = $nestedData;
-
+                $i++;
             }
         }
 
