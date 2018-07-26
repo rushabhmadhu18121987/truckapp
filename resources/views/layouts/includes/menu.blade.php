@@ -2,7 +2,7 @@
 <div class="sidebar-user">
     <div class="category-content">
         <div class="media">
-            <a href="#" class="media-left"><img src="{{ asset('admin_assets/images/placeholder.jpg') }}" class="img-circle img-sm" alt=""></a>
+            <a href="#" class="media-left"><img src="{{ asset('admin_assets/images/Mooch.png') }}" class="img-circle img-sm" alt=""></a>
             <div class="media-body">
                 <span class="media-heading text-semibold">Super Admin</span>
                 <!-- <div class="text-size-mini text-muted">

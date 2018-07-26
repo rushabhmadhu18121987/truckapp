@@ -113,7 +113,8 @@ class OrderController extends Controller
               $nestedData['created_at'] = date('j M Y',strtotime($post->created_at));
               //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
               $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";
-              $nestedData['action'] = "&emsp;<a href='editCategory/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
+              //$nestedData['action'] = "&emsp;<a href='editCategory/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
+              $nestedData['action'] = "&emsp;<a href='javescript:void(0);' title='SHOW' onclick='showUserDetails({$post->id})'><span class='glyphicon glyphicon-eye-open'></span></a>&emsp;".$stat;
               $data[] = $nestedData;
               $i++;
           }

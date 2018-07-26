@@ -28,7 +28,7 @@
                         <ul class="media-list dropdown-content-body">
                             <li class="media">
                                 <div class="media-left">
-                                    <img src="{{ asset('admin_assets/images/placeholder.jpg') }}" class="img-circle img-sm" alt="">
+                                    <img src="{{ asset('admin_assets/images/Mooch.png') }}" class="img-circle img-sm" alt="">
                                     <span class="badge bg-danger-400 media-badge">5</span>
                                 </div>
 
@@ -52,7 +52,7 @@
 
                 <li class="dropdown dropdown-user">
                     <a class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{ asset('admin_assets/images/placeholder.jpg') }}" alt="">
+                        <img src="{{ asset('admin_assets/images/Mooch.png') }}" alt="">
                         <span>Super Admin</span>
                         <i class="caret"></i>
                     </a>
