@@ -24,6 +24,10 @@ class UserController extends Controller {
 		$this->user = $user;
 	}
 
+	public function test(Request $request){
+		var_dump($request->all());
+	}
+
 	/**
 	 * Create a new user instance after a valid registration.
 	 *
