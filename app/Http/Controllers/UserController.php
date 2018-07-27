@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\User;
 use DB;
 use URL;
+use Exception;
 
 class UserController extends Controller
 {
@@ -15,7 +17,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('verify');;
     }
 
     /**
@@ -26,6 +28,19 @@ class UserController extends Controller
     public function index()
     {
         return view('admin/userlist');
+    }
+
+    public function verify($token){
+        try{
+            $user = User::where('remember_token',$token)->first();
+            $user->is_verify = 1;
+            if($user->save()){
+
+            return view('email.emailconfirm',['user'=>$user]);
+            }
+        }catch(Exception $e){
+            return abort(404);
+        }
     }
 
     public function allusers(Request $request)

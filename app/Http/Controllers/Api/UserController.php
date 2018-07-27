@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 //use App\Jobs\SendVerificationEmail;
 use App\Models\FavoriteList;
+use App\Jobs\SendVerificationEmail;
 use App\User;
 use DB;
 use Hash;
@@ -35,18 +36,37 @@ class UserController extends Controller {
 	 * @return \App\User
 	 */
 	protected function create($data) {
+		if($data->file('profile_image')){
+			$image = $data->file('profile_image');
+			$validFileExtentions = array('jpg','gif','png','JPG','GIF','PNG');
+			if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
+				$responseData = array();
+				$responseData['meta']['status'] = 'failure';
+				$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
+				$responseData['meta']['code'] = 500;
+				$responseData['data'] = array();
+				return response()->json($responseData);	
+			}
+			$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
+			$destinationPath = public_path() . '/uploads/profile/';
+			$image->move($destinationPath, $fileName);
+			chmod($destinationPath . "/" . $fileName, 0777);
+			$data->profile_image = $fileName;
+		}
+
 		return User::create([
 			'firstname' => $data->firstname,
 			'lastname' => $data->lastname,
 			'email' => $data->email,
 			'password' => bcrypt($data->password),
+			'remember_token' => base64_encode($data->email),
 			'mobile' => $data->mobile,
 			'profile_image' => $data->profile_image,
 			'referral_code' => $data->referral_code,
 			'is_subscribers' => $data->is_subscribers,
 			'user_login_type' => $data->user_login_type,
 			'status' => 1,
-			'is_verify' => 1,
+			'is_verify' => 0,
 			'driving_licence_doc' => $data->driving_licence_doc,
 			'created_at'=>date('Y-m-d H:i:s'),
 		]);
@@ -91,7 +111,7 @@ class UserController extends Controller {
 				return response()->json($responseData);
 			}
 			/* Upload Profile Pics */
-			$image = $request->file('profile_image');
+			/*$image = $request->file('profile_image');
 			$validFileExtentions = array('jpg','gif','png','JPG','GIF','PNG');
 			if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
 				$responseData = array();
@@ -105,11 +125,11 @@ class UserController extends Controller {
 			$destinationPath = public_path() . '/uploads/profile/';
 			$image->move($destinationPath, $fileName);
 			chmod($destinationPath . "/" . $fileName, 0777);
-			$request->profile_image = $fileName;
+			$request->profile_image = $fileName;*/
 			/* Upload Profile Pics */
 			// $request['ip'] = $request->ip();
 			$user = $this->create($request);
-			//dispatch(new SendVerificationEmail($user));
+			dispatch(new SendVerificationEmail($user));
 			$responseData = array();
 			$responseData['meta']['status'] = 'success';
 			$responseData['meta']['message'] = 'User created successfully';
@@ -118,7 +138,7 @@ class UserController extends Controller {
 		}catch(Exception $e){
 			$responseData = array();
 			$responseData['meta']['status'] = 'success';
-			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage();
+			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage().$e->getLine();
 			$responseData['meta']['code'] = 400;
 			$responseData['data'] = array();
 		}

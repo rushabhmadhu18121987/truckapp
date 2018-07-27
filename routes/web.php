@@ -18,6 +18,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/verifyemail/{token}', 'UserController@verify');
 Route::get('/logout', 'Auth\LoginController@logout');
 Route::get('users', 'UserController@index');
 Route::post('allusers', 'UserController@allusers' )->name('allusers');
