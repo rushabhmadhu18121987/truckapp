@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use Redirect;
 
 class PromocodeController extends Controller
 {
@@ -104,7 +105,7 @@ class PromocodeController extends Controller
               $nestedData['end_date'] = date('j M Y',strtotime($post->end_date));
               //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
               $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";
-              //$nestedData['action'] = "&emsp;<a href='editCategory/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
+              //$nestedData['action'] = "&emsp;<a href='editPromocode/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
               $nestedData['action'] = $stat;
               $data[] = $nestedData;
               $i++;
@@ -166,20 +167,26 @@ class PromocodeController extends Controller
         return redirect('vehicleCat');
     }
 
-    public function newCategory(Request $request){
-        return view('admin/addVehicleCategory');
+    public function newPromocode(Request $request){
+        return view('admin/addPromocode');
     }
 
-    public function addCategory(Request $request)
+    public function addPromocode(Request $request)
     {
-        $category_title = $request->category_name;
-        $image = $request->file('category_image');
-        $input['imagename'] = time().'.'.$image->getClientOriginalExtension();
-        $destinationPath = public_path('uploads\category');
-        $image->move($destinationPath, $input['imagename']);
-        DB::table('category')->insert(['category_title'=>$category_title,'category_img_url'=>$input['imagename'],'status'=>'0','created_at'=>date('Y-m-d H:i:s')]);
-
-        return view('admin/vehicleCategory');
+        $promocode_title = $request->promocode_title;
+        $promo_code = $request->promo_code;
+        $promotypes = $request->promotypes;
+        $price = $request->price;
+        $percentage = $request->percentage;
+        $startdate = date('Y-m-d',strtotime($request->startdate));
+        $enddate = date('Y-m-d',strtotime($request->enddate));
+        if($promotypes == '1'){
+            DB::table('promocodes')->insert(['title'=>$promocode_title,'promo_code'=>$promo_code,'price'=>$price,'start_date'=>$startdate,'end_date'=>$enddate,'status'=>'0','no_of_promo'=>0,'created_at'=>date('Y-m-d H:i:s')]);
+        }else{
+            DB::table('promocodes')->insert(['title'=>$promocode_title,'promo_code'=>$promo_code,'percentage'=>$percentage,'start_date'=>$startdate,'end_date'=>$enddate,'status'=>'0','no_of_promo'=>0,'created_at'=>date('Y-m-d H:i:s')]);
+        }
+        return Redirect::action('PromocodeController@index');
+        //return view('admin/promocode');
     }
 
 }

@@ -38,3 +38,6 @@ Route::post('orderList', 'OrderController@orderList' )->name('orderList');
 Route::get('promocode', 'PromocodeController@index');
 Route::post('promocodeList', 'PromocodeController@promocodeList' )->name('promocodeList');
 Route::post('promocodeStatusChange', 'PromocodeController@promocodeStatusChange' )->name('promocodeStatusChange');
+Route::get('newPromocode', 'PromocodeController@newPromocode' )->name('newPromocode');
+Route::post('addPromocode', 'PromocodeController@addPromocode' )->name('addPromocode');
+Route::get('editPromocode/{id}', 'PromocodeController@editPromocode' )->name('editPromocode');

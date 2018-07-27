@@ -16,6 +16,7 @@
     <link href="{{ asset('admin_assets/css/core.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('admin_assets/css/components.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('admin_assets/css/colors.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('admin_assets/css/bootstrap-datetimepicker.css') }}" rel="stylesheet" type="text/css">
     <!-- /global stylesheets -->
 
     <!-- Core JS files -->
@@ -35,6 +36,8 @@
     <script type="text/javascript" src="{{ asset('admin_assets/js/plugins/pickers/daterangepicker.js') }}"></script>
 
     <script type="text/javascript" src="{{ asset('admin_assets/js/core/app.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('admin_assets/js/bootstrap-datetimepicker.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('admin_assets/js/parsley.min.js') }}"></script>
     <!-- <script type="text/javascript" src="{{ asset('admin_assets/js/pages/dashboard.js') }}"></script> -->
     
     
