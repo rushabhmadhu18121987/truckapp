@@ -48,7 +48,7 @@
                                 <div class="container-fluid">
                                   <div class="content">
                                     <div class="panel panel-flat" style="padding-top: 20px; padding-bottom: 20px;">
-                                  <a class="btn btn-primary ml-20" href="newVehicle">Add New</a>
+                                  <!-- <a class="btn btn-primary ml-20" href="newVehicle">Add New</a> -->
                                         {{-- <div class="panel-heading">
                                             <h4>Total Number of Users is: {{count($users)}}</h4>
                                         </div> --}}
