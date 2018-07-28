@@ -125,7 +125,7 @@ class VehicleController extends Controller
               // }
               // $nestedData['status'] = $stats;
               $nestedData['vehicle_condition'] = $post->vehicle_condition;
-              $nestedData['hourly_price'] = $post->hourly_price;
+              $nestedData['hourly_price'] = $post->hours_price;
               $nestedData['daily_price'] = $post->daily_price;
               $nestedData['weekly_price'] = $post->weekly_price;
               $nestedData['monthly_price'] = $post->monthly_price;
