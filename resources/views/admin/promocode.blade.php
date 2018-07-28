@@ -145,6 +145,9 @@
             { "data": "end_date" },
             { "data": "action" }
         ],
+        columnDefs: [
+            { orderable: false, targets: -1 },
+        ],
         buttons: {            
             dom: {
                 button: {

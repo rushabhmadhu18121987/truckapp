@@ -30,7 +30,7 @@
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb">
                             <li><a href="index.html"><i class="icon-home2 position-left"></i> Home</a></li>
-                            <li class="active">Vehicles</li>
+                            <li class="active">Vehicles Management</li>
                         </ul>
                     </div>
                 </div>
@@ -155,7 +155,12 @@
             { "data": "monthly_price" },
             { "data": "action" }
         ],
-
+        columnDefs: [
+            { orderable: false, targets: 1 },
+            { orderable: false, targets: 3 },
+            { orderable: false, targets: -1 },
+            
+        ],
         buttons: {            
             dom: {
                 button: {
@@ -167,7 +172,7 @@
                 'excelHtml5',
                 'csvHtml5',
                 'pdfHtml5'
-            ]
+            ],
         }
       });
   });

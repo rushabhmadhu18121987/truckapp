@@ -30,7 +30,7 @@
                     <div class="breadcrumb-line">
                         <ul class="breadcrumb">
                             <li><a href="index.html"><i class="icon-home2 position-left"></i> Home</a></li>
-                            <li class="active">Subscribers</li>
+                            <li class="active">Vehicle Category</li>
                         </ul>
                     </div>
                 </div>
@@ -138,6 +138,10 @@
             { "data": "created_at" },
             { "data": "status" },
             { "data": "action" }
+        ],
+        columnDefs: [
+            { orderable: false, targets: 1 },
+            { orderable: false, targets: 4 },
         ],
         buttons: {            
             dom: {
