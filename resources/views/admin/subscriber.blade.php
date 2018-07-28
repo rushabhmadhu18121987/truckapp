@@ -110,7 +110,7 @@
 	<script type="text/javascript" src="{{ asset('admin_assets/js/core/app.js') }}"></script>
 	<!-- <script type="text/javascript" src="{{ asset('admin_assets/js/pages/datatables_extension_buttons_html5.js') }}"></script> -->
     <!-- theme JS files -->
-<script>
+<script> 
   $(function() {
     // Setting datatable defaults
     $.extend( $.fn.dataTable.defaults, {

@@ -126,7 +126,7 @@
             paginate: { 'first': 'First', 'last': 'Last', 'next': '&rarr;', 'previous': '&larr;' }
         }
     });
-    $('#promocodeTable').DataTable({
+    $('#promocodeTable').DataTable({ 
         "processing": true,
         "serverSide": true,
         "ajax":{

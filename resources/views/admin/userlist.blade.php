@@ -187,7 +187,7 @@
             { "data": "mobile" },
             { "data": "profile_image" },
             { "data": "license" },
-            { "data": "action" }
+            { "data": "action" } 
         ],
         columnDefs: [
             { orderable: false, targets: 1 },

@@ -29,7 +29,7 @@
             <li <?php echo (Request::segment(1) == 'users') ? 'class="active"' : ""; ?>>
                 <a href="{{ url('users') }}"><i class="icon-copy"></i> <span>Users</span></a>
                
-            </li>
+            </li> 
             <li <?php echo (Request::segment(1) == 'subscribers') ? 'class="active"' : ""; ?>><a href="{{ url('subscribers') }}"><i class="icon-droplet2"></i> <span>Subscribers</span></a></li>
             <li <?php echo (Request::segment(1) == 'vehicleCat') ? 'class="active"' : ""; ?>><a href="{{ url('vehicleCat') }}"><i class="icon-droplet2"></i> <span>Vehicle Category</span></a></li>
             <li <?php echo (Request::segment(1) == 'vehicle') ? 'class="active"' : ""; ?>><a href="{{ url('vehicle') }}"><i class="icon-pencil3"></i> <span>Vehicle Management</span></a></li>

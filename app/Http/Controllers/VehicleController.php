@@ -137,7 +137,7 @@ class VehicleController extends Controller
               $data[] = $nestedData;
               $i++;
           }
-      }
+      } 
 
       $json_data = array(
           "draw"            => intval($request->input('draw')),  
