@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use DB;
 use Redirect;
 
-class PromocodeController extends Controller
+class VehicleController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -25,23 +25,31 @@ class PromocodeController extends Controller
      */
     public function index()
     {
-        return view('admin/promocode');
+        return view('admin/vehicle');
     }
 
-    public function promocodeList(Request $request)
+    public function vehicleList(Request $request)
     {
       $columns = array( 
           0 =>'id', 
-          1 =>'title', 
-          2 =>'promo_code',
-          3=> 'price',
-          4=> 'percentage',
-          5=> 'start_date',
-          6=> 'end_date',
-          7=> 'action',
+          1 =>'owner', 
+          2 =>'title', 
+          3 =>'vehicle_type',
+          4=> 'make',
+          5=> 'model',
+          6=> 'color',
+          7=> 'vehicle_condition',
+          8=> 'hourly_price',
+          9=> 'daily_price',
+          10=> 'weekly_price',
+          11=> 'monthly_price',
+          12=> 'action',
       );
 
-      $totalData = DB::table('promocodes')
+      $totalData = DB::table('vehicles as v')
+                              ->select('v.*','v.id as vid','u.firstname','u.lastname','category_title')
+                              ->leftJoin('users as u', 'u.id', 'v.user_id')
+                              ->leftJoin('category as c', 'c.id', 'v.type')
                               ->count();
 
       $totalFiltered = $totalData; 
@@ -53,7 +61,10 @@ class PromocodeController extends Controller
 
       if(empty($request->input('search.value')))
       {            
-          $posts = DB::table('promocodes')
+          $posts = DB::table('vehicles as v')
+                  ->select('v.*','v.id as vid','u.firstname','u.lastname','category_title')
+                  ->leftJoin('users as u', 'u.id', 'v.user_id')
+                  ->leftJoin('category as c', 'c.id', 'v.type')
                   ->offset($start)
                   ->limit($limit)
                   ->orderBy($order,$dir)
@@ -62,24 +73,34 @@ class PromocodeController extends Controller
       else {
           $search = $request->input('search.value'); 
 
-          $posts = DB::table('promocodes')
+          $posts = DB::table('vehicles as v')
+                      ->select('v.*','v.id as vid','u.firstname','u.lastname','category_title')
+                      ->leftJoin('users as u', 'u.id', 'v.user_id')
+                      ->leftJoin('category as c', 'c.id', 'v.type')
                       ->where(function ($query) use ($search){
-                          $query->where('title', 'LIKE',"%{$search}%");
-                          $query->orWhere('promo_code', 'LIKE',"%{$search}%");
-                          $query->orWhere('price', 'LIKE',"%{$search}%");
-                          $query->orWhere('percentage', 'LIKE',"%{$search}%");
+                          $query->where('u.firstname', 'LIKE',"%{$search}%");
+                          $query->orWhere('u.lastname', 'LIKE',"%{$search}%");
+                          $query->orWhere('v.title', 'LIKE',"%{$search}%");
+                          $query->orWhere('v.make', 'LIKE',"%{$search}%");
+                          $query->orWhere('v.model', 'LIKE',"%{$search}%");
+                          $query->orWhere('v.color', 'LIKE',"%{$search}%");
                       })
                       ->offset($start)
                       ->limit($limit)
                       ->orderBy($order,$dir)
                       ->get();
 
-          $totalFiltered = DB::table('promocodes')
+          $totalFiltered = DB::table('vehicles as v')
+                                ->select('v.*','v.id as vid','u.firstname','u.lastname','category_title')
+                                ->leftJoin('users as u', 'u.id', 'v.user_id')
+                                ->leftJoin('category as c', 'c.id', 'v.type')
                                 ->where(function ($query) use ($search){
-                                  $query->where('title', 'LIKE',"%{$search}%");
-                                  $query->orWhere('promo_code', 'LIKE',"%{$search}%");
-                                  $query->orWhere('price', 'LIKE',"%{$search}%");
-                                  $query->orWhere('percentage', 'LIKE',"%{$search}%");
+                                  $query->where('u.firstname', 'LIKE',"%{$search}%");
+                                  $query->orWhere('u.lastname', 'LIKE',"%{$search}%");
+                                  $query->orWhere('v.title', 'LIKE',"%{$search}%");
+                                  $query->orWhere('v.make', 'LIKE',"%{$search}%");
+                                  $query->orWhere('v.model', 'LIKE',"%{$search}%");
+                                  $query->orWhere('v.color', 'LIKE',"%{$search}%");
                                 })
                                 ->count();
       }
@@ -91,21 +112,27 @@ class PromocodeController extends Controller
           foreach ($posts as $post)
           {
               $nestedData['id'] = $i;
+              $nestedData['owner'] = $post->firstname.' '.$post->lastname;
               $nestedData['title'] = $post->title;
-              $nestedData['promo_code'] = $post->promo_code;
-              $nestedData['price'] = ($post->price == "") ? "-" : $post->price;
-              $nestedData['percentage'] = ($post->percentage == "") ? "-" : $post->percentage;
+              $nestedData['vehicle_type'] = $post->category_title;
+              $nestedData['make'] = $post->make;
+              $nestedData['model'] = $post->model;
+              $nestedData['color'] = $post->color;
               // if($post->status == '1'){
               //   $stats = '<lable class="badge badge-success">Active</lable>';
               // }else{
               //   $stats = '<lable class="badge badge-warning">Inactive</lable>';
               // }
               // $nestedData['status'] = $stats;
-              $nestedData['start_date'] = date('j M Y',strtotime($post->start_date));
-              $nestedData['end_date'] = date('j M Y',strtotime($post->end_date));
-              //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
-              $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";
-              //$nestedData['action'] = "&emsp;<a href='editPromocode/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
+              $nestedData['vehicle_condition'] = $post->vehicle_condition;
+              $nestedData['hourly_price'] = $post->hourly_price;
+              $nestedData['daily_price'] = $post->daily_price;
+              $nestedData['weekly_price'] = $post->weekly_price;
+              $nestedData['monthly_price'] = $post->monthly_price;
+              
+              //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->vid}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->vid}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
+              $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->vid})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->vid})' ><span class='glyphicon glyphicon-remove'></span></a>";
+              //$nestedData['action'] = "&emsp;<a href='editPromocode/{$post->vid}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
               $nestedData['action'] = $stat;
               $data[] = $nestedData;
               $i++;
@@ -122,7 +149,7 @@ class PromocodeController extends Controller
       echo json_encode($json_data);
     }
 
-    public function promocodeStatusChange(Request $request)
+    public function vehicleStatusChange(Request $request)
     {
         $id = $request->id;
         $sts = $request->sts;
@@ -131,7 +158,7 @@ class PromocodeController extends Controller
         }else{
             $sts = '1';
         }
-        DB::table('promocodes')
+        DB::table('vehicles')
                       ->where('id',$id)
                       ->update(['status'=>$sts]);
         echo json_encode('1');
