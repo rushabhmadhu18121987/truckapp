@@ -105,8 +105,8 @@ class PromocodeController extends Controller
               $nestedData['end_date'] = date('j M Y',strtotime($post->end_date));
               //$stat = ($post->status == 1) ? "&emsp;<a href='statusChange/1/{$post->id}' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='statusChange/2/{$post->id}' title='Inactive' ><span class='glyphicon glyphicon-remove'></span></a>";
               $stat = ($post->status == 1) ? "&emsp;<a href='javascript:void(0);' onclick='statusChange(1,{$post->id})' title='Active' ><span class='glyphicon glyphicon-ok'></span></a>" : "&emsp;<a href='javascript:void(0);' title='Inactive' onclick='statusChange(2,{$post->id})' ><span class='glyphicon glyphicon-remove'></span></a>";
-              //$nestedData['action'] = "&emsp;<a href='editPromocode/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
-              $nestedData['action'] = $stat;
+              $nestedData['action'] = "&emsp;<a href='editPromocode/{$post->id}' title='EDIT' ><span class='glyphicon glyphicon-edit'></span></a>$stat";
+              //$nestedData['action'] = $stat;
               $data[] = $nestedData;
               $i++;
           }
@@ -147,24 +147,27 @@ class PromocodeController extends Controller
     public function updatePromocode(Request $request)
     {
         
-        $id = $request->cid;
-        $category_title = $request->category_name;
-        //$category_img_url = $request->category_image;
-        /*$this->validate($request, [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-*/
+        $id = $request->id;
+        $promocode_title = $request->promocode_title;
+        $promo_code = $request->promo_code;
+        $promotypes = $request->promotypes;
+        $price = $request->price;
+        $percentage = $request->percentage;
+        $status = $request->status;
+        $startdate = date('Y-m-d',strtotime($request->startdate));
+        $enddate = date('Y-m-d',strtotime($request->enddate));
+       
+        if($request->promotype == 'price'){
+            DB::table('promocodes')
+                    ->where('id',$id)
+                    ->update(['title'=>$promocode_title,'promo_code'=>$promo_code,'price'=>$price,'start_date'=>$startdate,'end_date'=>$enddate,'status'=>$status,'updated_at'=>date('Y-m-d H:i:s')]);
+        }else if($request->promotype == 'percentage'){
+            DB::table('promocodes')
+                    ->where('id',$id)
+                    ->update(['title'=>$promocode_title,'promo_code'=>$promo_code,'percentage'=>$percentage,'start_date'=>$startdate,'end_date'=>$enddate,'status'=>$status,'updated_at'=>date('Y-m-d H:i:s')]);
+        }
 
-        $image = $request->file('category_image');
-        $input['imagename'] = time().'.'.$image->getClientOriginalExtension();
-        $destinationPath = public_path('uploads\category');
-        $image->move($destinationPath, $input['imagename']);
-
-        DB::table('category')
-                      ->where('id',$id)
-                      ->update(['category_title'=>$category_title,'category_img_url'=>$input['imagename'],'updated_at'=>date('Y-m-d H:i:s')]);
-
-        return redirect('vehicleCat');
+        return redirect('promocode');
     }
 
     public function newPromocode(Request $request){

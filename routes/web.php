@@ -50,6 +50,7 @@ Route::post('promocodeStatusChange', 'PromocodeController@promocodeStatusChange'
 Route::get('newPromocode', 'PromocodeController@newPromocode' )->name('newPromocode');
 Route::post('addPromocode', 'PromocodeController@addPromocode' )->name('addPromocode');
 Route::get('editPromocode/{id}', 'PromocodeController@editPromocode' )->name('editPromocode');
+Route::post('updatePromocode', 'PromocodeController@updatePromocode' )->name('updatePromocode');
 
 //vehicle
 Route::get('vehicle', 'VehicleController@index');
