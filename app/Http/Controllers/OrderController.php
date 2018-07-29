@@ -40,7 +40,7 @@ class OrderController extends Controller
 
       $totalData = DB::table('orders as o')
                               ->leftJoin('users as u','u.id', 'o.user_id')
-                              ->leftJoin('vehicles as v','v.id', 'o.vehicle_id')
+                              ->leftJoin('category as v','v.id', 'o.vehicle_id')
                               ->count();
 
       $totalFiltered = $totalData; 
@@ -53,9 +53,9 @@ class OrderController extends Controller
       if(empty($request->input('search.value')))
       {            
           $posts = DB::table('orders as o')
-                  ->select('o.*','u.firstname','u.lastname','v.title')
+                  ->select('o.*','u.firstname','u.lastname','v.category_title')
                   ->leftJoin('users as u','u.id', 'o.user_id')
-                  ->leftJoin('vehicles as v','v.id', 'o.vehicle_id')
+                  ->leftJoin('category as v','v.id', 'o.vehicle_id')
                   ->offset($start)
                   ->limit($limit)
                   ->orderBy($order,$dir)
@@ -65,9 +65,9 @@ class OrderController extends Controller
           $search = $request->input('search.value'); 
 
           $posts = DB::table('orders as o')
-                      ->select('o.*','u.firstname','u.lastname','v.title')
+                      ->select('o.*','u.firstname','u.lastname','v.category_title')
                       ->leftJoin('users as u','u.id', 'o.user_id')
-                      ->leftJoin('vehicles as v','v.id', 'o.vehicle_id')
+                      ->leftJoin('category as v','v.id', 'o.vehicle_id')
                       ->where(function ($query) use ($search){
                           $query->where('u.firstname', 'LIKE',"%{$search}%");
                           $query->orWhere('u.lastname', 'LIKE',"%{$search}%");
@@ -82,7 +82,7 @@ class OrderController extends Controller
 
           $totalFiltered = DB::table('orders as o')
                                 ->leftJoin('users as u','u.id', 'o.user_id')
-                                ->leftJoin('vehicles as v','v.id', 'o.vehicle_id')
+                                ->leftJoin('category as v','v.id', 'o.vehicle_id')
                                 ->where(function ($query) use ($search){
                                   $query->where('u.firstname', 'LIKE',"%{$search}%");
                                   $query->orWhere('u.lastname', 'LIKE',"%{$search}%");
@@ -101,7 +101,7 @@ class OrderController extends Controller
           {
               $nestedData['id'] = $i;
               $nestedData['name'] = $post->firstname.' '.$post->lastname;
-              $nestedData['vahicle_category'] = $post->title;
+              $nestedData['vahicle_category'] = $post->category_title;
               $nestedData['pickup'] = $post->pickup_address;
               $nestedData['dropoff'] = $post->dropoff_address;
               // if($post->status == '1'){
