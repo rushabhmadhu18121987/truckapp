@@ -22,6 +22,8 @@ Route::post('/register', 'Api\UserController@register'); //register
 
 Route::post('/v1/login', 'Api\UserController@login'); //login
 Route::post('/v1/register', 'Api\UserController@register'); //register
+Route::post('/v1/change_password', 'Api\UserController@changePassword');
 Route::post('/v1/getprofile', 'Api\p1\MainController@getprofile');
 Route::post('/v1/get_categories','Api\p1\MainController@get_categories');
 Route::post('/v1/get_vehicles','Api\p1\MainController@get_vehicles');
+Route::post('/v1/add_vehicles','Api\p1\MainController@add_vehicles');

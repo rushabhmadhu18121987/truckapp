@@ -38,7 +38,7 @@ class UserController extends Controller {
 	protected function create($data) {
 		if($data->hasFile('profile_image')){
 			$image = $data->file('profile_image');
-			$validFileExtentions = array('jpg','gif','png','JPG','GIF','PNG');
+			$validFileExtentions = array('jpg','gif','jpeg','png','JPG','GIF','PNG','JPEG');
 			if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
 				$responseData = array();
 				$responseData['meta']['status'] = 'failure';
@@ -55,7 +55,7 @@ class UserController extends Controller {
 		}else{
 			$profile_image = '';
 		}
-
+		$is_verify = ($data->user_login_type=="email") ? 0 : 1;
 		return User::create([
 			'firstname' => $data->firstname,
 			'lastname' => $data->lastname,
@@ -68,7 +68,7 @@ class UserController extends Controller {
 			'is_subscribers' => $data->is_subscribers,
 			'user_login_type' => $data->user_login_type,
 			'status' => 1,
-			'is_verify' => 0,
+			'is_verify' => $is_verify,
 			'driving_licence_doc' => $data->driving_licence_doc,
 			'created_at'=>date('Y-m-d H:i:s'),
 			'updated_at'=>date('Y-m-d H:i:s'),
@@ -82,37 +82,6 @@ class UserController extends Controller {
 	 */
 	public function register(Request $request) {
 		try{
-			$validator = Validator::make($request->all(), [
-				'firstname' => 'required|string|min:2|max:20',
-				'lastname' => 'required|string|min:2|max:20',
-				'email' => 'required|string|email|max:255|unique:users',
-				'password' => 'required|string|min:6',
-			]);
-			// return count($validator->errors());
-			$message = 'Error';
-			$errors = $validator->errors()->getMessages();
-			$obj = $validator->failed();
-			$result = [];
-			foreach ($obj as $input => $rules) {
-				$i = 0;
-				foreach ($rules as $rule => $ruleInfo) {
-					$key = $rule;
-					foreach ($ruleInfo as $tag) {
-						$key .= '.' . $tag;
-					}
-					$key = $input . '[' . strtolower($key) . ']';
-					$message = $errors[$input][$i];
-					break;
-				}
-			}
-			if ($validator->fails()) {
-				$responseData = array();
-				$responseData['meta']['status'] = 'failure';
-				$responseData['meta']['message'] = $message;
-				$responseData['meta']['code'] = 304;
-				$responseData['data'] = array("status"=>"failure");
-				return response()->json($responseData);
-			}
 			$user = $this->create($request);
 			dispatch(new SendVerificationEmail($user));
 			$responseData = array();
@@ -125,7 +94,7 @@ class UserController extends Controller {
 			$responseData['meta']['status'] = 'failure';
 			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage().$e->getLine();
 			$responseData['meta']['code'] = 400;
-			$responseData['data'] = array("status"=>"success");
+			$responseData['data'] = array("status"=>"failure");
 		}
 		return response()->json($responseData);
 	}

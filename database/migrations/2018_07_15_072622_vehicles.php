@@ -18,7 +18,7 @@ class Vehicles extends Migration
             $table->increments('id');
             $table->integer('user_id');
             $table->string('title')->nullable();
-            $table->string('type')->nullable();
+            $table->integer('category_type')->nullable();
             $table->string('make')->nullable();
             $table->string('model')->nullable();
             $table->string('color')->nullable();
