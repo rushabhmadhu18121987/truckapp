@@ -36,7 +36,7 @@ class UserController extends Controller {
 	 * @return \App\User
 	 */
 	protected function create($data) {
-		if($data->file('profile_image')){
+		if($data->hasFile('profile_image')){
 			$image = $data->file('profile_image');
 			$validFileExtentions = array('jpg','gif','png','JPG','GIF','PNG');
 			if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
@@ -44,14 +44,16 @@ class UserController extends Controller {
 				$responseData['meta']['status'] = 'failure';
 				$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
 				$responseData['meta']['code'] = 500;
-				$responseData['data'] = array();
+				$responseData['data'] = array("status"=>"failure");
 				return response()->json($responseData);	
 			}
 			$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
 			$destinationPath = public_path() . '/uploads/profile/';
 			$image->move($destinationPath, $fileName);
 			chmod($destinationPath . "/" . $fileName, 0777);
-			$data->profile_image = $fileName;
+			$profile_image = $fileName;
+		}else{
+			$profile_image = '';
 		}
 
 		return User::create([
@@ -61,14 +63,15 @@ class UserController extends Controller {
 			'password' => bcrypt($data->password),
 			'remember_token' => base64_encode($data->email),
 			'mobile' => $data->mobile,
-			'profile_image' => $data->profile_image,
-			'referral_code' => $data->referral_code,
+			'profile_image' => (strlen($profile_image)==0) ? "" : $profile_image,
+			'referral_code' => (strlen($data->referral_code)==0) ? "" : $data->referral_code,
 			'is_subscribers' => $data->is_subscribers,
 			'user_login_type' => $data->user_login_type,
 			'status' => 1,
 			'is_verify' => 0,
 			'driving_licence_doc' => $data->driving_licence_doc,
 			'created_at'=>date('Y-m-d H:i:s'),
+			'updated_at'=>date('Y-m-d H:i:s'),
 		]);
 	}
 	/**
@@ -107,27 +110,9 @@ class UserController extends Controller {
 				$responseData['meta']['status'] = 'failure';
 				$responseData['meta']['message'] = $message;
 				$responseData['meta']['code'] = 304;
-				$responseData['data'] = array();
+				$responseData['data'] = array("status"=>"failure");
 				return response()->json($responseData);
 			}
-			/* Upload Profile Pics */
-			/*$image = $request->file('profile_image');
-			$validFileExtentions = array('jpg','gif','png','JPG','GIF','PNG');
-			if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
-				$responseData = array();
-				$responseData['meta']['status'] = 'failure';
-				$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
-				$responseData['meta']['code'] = 500;
-				$responseData['data'] = array();
-				return response()->json($responseData);	
-			}
-			$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
-			$destinationPath = public_path() . '/uploads/profile/';
-			$image->move($destinationPath, $fileName);
-			chmod($destinationPath . "/" . $fileName, 0777);
-			$request->profile_image = $fileName;*/
-			/* Upload Profile Pics */
-			// $request['ip'] = $request->ip();
 			$user = $this->create($request);
 			dispatch(new SendVerificationEmail($user));
 			$responseData = array();
@@ -137,10 +122,10 @@ class UserController extends Controller {
 			$responseData['data'] = $user;
 		}catch(Exception $e){
 			$responseData = array();
-			$responseData['meta']['status'] = 'success';
+			$responseData['meta']['status'] = 'failure';
 			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage().$e->getLine();
 			$responseData['meta']['code'] = 400;
-			$responseData['data'] = array();
+			$responseData['data'] = array("status"=>"success");
 		}
 		return response()->json($responseData);
 	}
@@ -162,7 +147,7 @@ class UserController extends Controller {
 			$responseData['meta']['status'] = 'failure';
 			$responseData['meta']['message'] = $message;
 			$responseData['meta']['code'] = 304;
-			$responseData['data'] = array();
+			$responseData['data'] = array("status"=>"failure");
 			return response()->json($responseData);
 		}
 
@@ -174,7 +159,7 @@ class UserController extends Controller {
 				$responseData['meta']['status'] = 'failure';
 				$responseData['meta']['message'] = 'Invalid email or password. Please try again';
 				$responseData['meta']['code'] = 304;
-				$responseData['data'] = array();
+				$responseData['data'] = array("status"=>"failure");
 				return response()->json($responseData);
 			} else {
 				$user = JWTAuth::toUser($token);
@@ -200,13 +185,13 @@ class UserController extends Controller {
 					$responseData['meta']['status'] = 'failure';
 					$responseData['meta']['message'] = $message;
 					$responseData['meta']['code'] = 304;
-					$responseData['data'] = array();
+					$responseData['data'] = array("status"=>"failure");
 					return response()->json($responseData);
 				} else {
 					$responseData = array();
-					$responseData['meta']['status'] = 'failure';
+					$responseData['meta']['status'] = 'success';
 					$responseData['meta']['message'] = 'Logged in success';
-					$responseData['meta']['code'] = 304;
+					$responseData['meta']['code'] = 200;
 					$responseData['data'] = $nuser;
 					$responseData['meta']['profile_baseurl'] = url('/public/uploads/profile');
 					return response()->json($responseData);
@@ -217,7 +202,7 @@ class UserController extends Controller {
 			$responseData['meta']['status'] = 'failure';
 			$responseData['meta']['message'] = 'Failed to create token';
 			$responseData['meta']['code'] = 500;
-			$responseData['data'] = array();
+			$responseData['data'] = array("status"=>"failure");
 			return response()->json($responseData);
 		}
 		return response()->json(compact('token'));

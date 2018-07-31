@@ -188,6 +188,16 @@
                                         <div id="today-revenue"></div>
                                     </div>
                                 </div>
+				<div class="col-lg-3">
+                                    <div class="panel bg-success-400">
+                                        <div class="panel-body">
+                                            <h3 class="no-margin">{{$promocodes}}</h3>
+                                            Promocodes
+                                            <!-- <div class="text-muted text-size-small">$37,578 avg</div> -->
+                                        </div>
+                                        <div id="today-revenue"></div>
+                                    </div>
+                                </div>
                             </div>
                             <!-- /quick stats boxes -->
 
