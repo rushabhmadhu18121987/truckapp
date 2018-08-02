@@ -36,25 +36,33 @@ class UserController extends Controller {
 	 * @return \App\User
 	 */
 	protected function create($data) {
-		if($data->hasFile('profile_image')){
-			$image = $data->file('profile_image');
-			$validFileExtentions = array('jpg','gif','jpeg','png','JPG','GIF','PNG','JPEG');
-			if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
-				$responseData = array();
-				$responseData['meta']['status'] = 'failure';
-				$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
-				$responseData['meta']['code'] = 500;
-				$responseData['data'] = array("status"=>"failure");
-				return response()->json($responseData);	
+
+		if($data->has('user_login_type')){
+			if($data->user_login_type=='email'){
+				if($data->hasFile('profile_image')){
+					$image = $data->file('profile_image');
+					$validFileExtentions = array('jpg','gif','jpeg','png','JPG','GIF','PNG','JPEG');
+					if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
+						$responseData = array();
+						$responseData['meta']['status'] = 'failure';
+						$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
+						$responseData['meta']['code'] = 500;
+						$responseData['data'] = array("status"=>"failure");
+						return response()->json($responseData);	
+					}
+					$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
+					$destinationPath = public_path() . '/uploads/profile/';
+					$image->move($destinationPath, $fileName);
+					chmod($destinationPath . "/" . $fileName, 0777);
+					$profile_image = $fileName;
+				}else{
+					$profile_image = '';
+				}
+			}else{
+				$profile_image = $data->profile_image;
 			}
-			$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
-			$destinationPath = public_path() . '/uploads/profile/';
-			$image->move($destinationPath, $fileName);
-			chmod($destinationPath . "/" . $fileName, 0777);
-			$profile_image = $fileName;
-		}else{
-			$profile_image = '';
 		}
+
 		$is_verify = ($data->user_login_type=="email") ? 0 : 1;
 		return User::create([
 			'firstname' => $data->firstname,
@@ -81,6 +89,37 @@ class UserController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function register(Request $request) {
+		$validator = Validator::make($request->all(), [
+			'email' => 'required|string|email|max:255|unique:users',
+		]);
+
+		$message = 'Error';
+		$errors = $validator->errors()->getMessages();
+		$obj = $validator->failed();
+		$result = [];
+		foreach ($obj as $input => $rules) {
+			$i = 0;
+			foreach ($rules as $rule => $ruleInfo) {
+				$key = $rule;
+				foreach ($ruleInfo as $tag) {
+					$key .= '.' . $tag;
+				}
+				$key = $input . '[' . strtolower($key) . ']';
+				$message = $errors[$input][$i];
+				break;
+			}
+		}
+
+		if ($validator->fails()) {
+			$responseData = array();
+			$responseData['meta']['status'] = 'failure';
+			$responseData['meta']['message'] = $message;
+			$responseData['meta']['code'] = 400;
+			$responseData['data'] = array("status"=>"failure");
+
+			return response()->json($responseData);
+		}
+
 		try{
 			$user = $this->create($request);
 			dispatch(new SendVerificationEmail($user));
@@ -284,86 +323,46 @@ class UserController extends Controller {
 	}
 
 	public function update_profile(Request $request) {
-		$user = JWTAuth::toUser($request->token);
-		$validator = Validator::make($request->all(), [
-			'first_name' => 'required|string|min:2|max:20',
-			'last_name' => 'required|string|min:2|max:20',
-			'gender' => 'required',
-			'mobile' => 'nullable|min:10|max:15|regex:/^[0-9+]+$/',
-			'postal_code' => 'nullable|max:8|regex:/^[a-zA-Z0-9 ]+$/',
-			'profile_img' => 'image',
-			'vehicle_number' => 'nullable|unique:users,vehicle_number,' . $user->id,
-		]);
-
-		if ($validator->fails()) {
-			$result = json_decode($validator->errors(), true);
-			$message = '';
-			foreach ($result as $value) {
-				$message = implode(', ', $value);
-				break;
-			}
-			return response()->json(['status' => 1, 'message' => $message, 'result' => null]);
-		}
-
 		try {
+			$user = JWTAuth::toUser($request->header('token'));
 		    $nuser = User::findOrFail($user->id);
-		    //Get Country Code
-            $countryData = DB::table('country')->where('id', $request->country)->select('phonecode')->first();
-            $phoneWithCountry = '+'.$countryData->phonecode.''.$request->mobile;
-            //Validate phone number with country code
-			$countryDataUsers = DB::table('users')->where('mobile_code', $phoneWithCountry)->select('id')->where('id','!=',$user->id)->get();
-			if(count($countryDataUsers)>0){
-			    return response()->json(['status' => 1, 'message' => 'User already exist with same phone number and country code', 'result' => null]);    
-			}
-			$nuser->first_name = $request->first_name;
-			$nuser->last_name = $request->last_name;
-			$nuser->dob = $request->dob;
+		    
+			$nuser->firstname = $request->firstname;
+			$nuser->lastname = $request->lastname;
 			$nuser->mobile = $request->mobile;
-			$nuser->address_1 = $request->address_1;
-			$nuser->address_2 = $request->address_2;
+			$nuser->address = $request->address;
 			$nuser->city = $request->city;
-			$nuser->postal_code = $request->postal_code;
-			$nuser->vehicle_number = $request->vehicle_number;
-			$nuser->country = $request->country;
-			$nuser->gender = $request->gender;
-			$nuser->mobile_code = $phoneWithCountry;
 
-			if ($request->has('profile_show_type')) {
-				if ($request->get('profile_show_type') == 1) {
-					//nickname
-					if (strlen($nuser->unzeenu_nickname) == 0) {
-						$nuser->unzeenu_nickname = strtolower($nuser->first_name . '_' . $nuser->lastname);
-					}
-					$nuser->show_name = $nuser->unzeenu_nickname;
-					$nuser->profile_show_type = 1;
-				} else {
-					//first_name , lastname
-					$nuser->show_name = $nuser->first_name . ' ' . $nuser->last_name;
-					$nuser->profile_show_type = 0;
-				}
-			}
-
-			if ($request->profile_img != "") {
-				$image = $request->file('profile_img');
-				$fileName = 'Img-' . date('YmdHsi') . '.' . $image->getClientOriginalExtension();
-				$destinationPath = public_path() . '/images/profile/';
+			if ($request->profile_image != "") {
+				$image = $request->file('profile_image');
+				$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
+				$destinationPath = public_path() . '/uploads/profile/';
 				$image->move($destinationPath, $fileName);
 				chmod($destinationPath . "/" . $fileName, 0777);
+				$profile_image = $fileName;
 
 				if ($nuser->profile_img != null && file_exists(public_path() . '/images/profile/' . $nuser->profile_img)) {
 					unlink(public_path() . '/images/profile/' . $nuser->profile_img);
 				}
-
 				$nuser->profile_img = $fileName;
 			}
-			$nuser->updated_by = $user->id;
 			$nuser->save();
 			$nuser->token = $request->header('token');
-			return response()->json(['status' => 0, 'message' => 'Profile Updated successfully', 'result' => $nuser]);
+
+			$responseData['meta']['status'] = 'success';
+			$responseData['meta']['message'] = 'Profile updated successfully';
+			$responseData['meta']['code'] = 200;
+			$responseData['data'] = $nuser;
 
 		} catch (Exception $e) {
-			return response()->json(['status' => 1, 'message' => 'Error', 'result' => $e->getMessage()]);
+
+			$responseData = array();
+			$responseData['meta']['status'] = 'failure';
+			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage().$e->getLine();
+			$responseData['meta']['code'] = 400;
+			$responseData['data'] = array("status"=>"failure");
 		}
+		return response()->json($responseData);
 	}
 
 	public function logout(Request $request) {
