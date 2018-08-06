@@ -449,8 +449,9 @@ class UserController extends Controller {
 			if($user){
 				DB::table('users')->where('id',$user->id)->update(['password'=>$password]);
 				$message = 'Hello, Your Temporary Login password is :'.$uniqid;
-				Mail::raw($message, function ($msg,$email){
-				    $msg->to($request->get('email'));
+				$email = $request->get('email');
+				Mail::raw($message, function ($msg) use ($email){
+				    $msg->to($email);
 				});
 				$responseData = array();
 				$responseData['meta']['status'] = 'success';
