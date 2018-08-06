@@ -29,6 +29,38 @@ class UserController extends Controller {
 		var_dump($request->all());
 	}
 
+	public function social_login(Request $request) {
+		$responseData = array();
+		
+		try{
+			if($request->has('sm_id')){
+				$sm_id = User::where('sm_id',$request->get('sm_id'))->first();
+				if($sm_id){
+					$responseData['meta']['status'] = 'failure';
+					$responseData['meta']['message'] = 'Catched Error: social_login';
+					$responseData['meta']['code'] = 200;
+					$responseData['data'] = $sm_id;
+				}else{
+					$responseData['meta']['status'] = 'failure';
+					$responseData['meta']['message'] = 'No User Found';
+					$responseData['meta']['code'] = 200;
+					$responseData['data'] = array("status"=>"failure");
+				}
+			}else{
+				$responseData['meta']['status'] = 'failure';
+				$responseData['meta']['message'] = 'social_login parameter sm_id missing';
+				$responseData['meta']['code'] = 200;
+				$responseData['data'] = array("status"=>"failure");
+			}
+
+		}catch(Exception $e){
+			$responseData['meta']['status'] = 'failure';
+			$responseData['meta']['message'] = 'Catched Error: social_login';
+			$responseData['meta']['code'] = 500;
+			$responseData['data'] = array("status"=>"failure");
+		}
+	}
+
 	/**
 	 * Create a new user instance after a valid registration.
 	 *
@@ -58,8 +90,10 @@ class UserController extends Controller {
 				}else{
 					$profile_image = '';
 				}
+				$sm_id = "";
 			}else{
 				$profile_image = $data->profile_image;
+				$sm_id=$request->get('sm_id');
 			}
 		}
 
@@ -78,6 +112,7 @@ class UserController extends Controller {
 			'status' => 1,
 			'is_verify' => $is_verify,
 			'driving_licence_doc' => $data->driving_licence_doc,
+			'sm_id' => $sm_id,
 			'created_at'=>date('Y-m-d H:i:s'),
 			'updated_at'=>date('Y-m-d H:i:s'),
 		]);
