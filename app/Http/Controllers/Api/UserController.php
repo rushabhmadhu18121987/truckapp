@@ -36,8 +36,8 @@ class UserController extends Controller {
 			if($request->has('sm_id')){
 				$sm_id = User::where('sm_id',$request->get('sm_id'))->first();
 				if($sm_id){
-					$responseData['meta']['status'] = 'failure';
-					$responseData['meta']['message'] = 'Catched Error: social_login';
+					$responseData['meta']['status'] = 'success';
+					$responseData['meta']['message'] = 'Social login success';
 					$responseData['meta']['code'] = 200;
 					$responseData['data'] = $sm_id;
 				}else{
