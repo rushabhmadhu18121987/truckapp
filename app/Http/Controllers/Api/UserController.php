@@ -59,6 +59,7 @@ class UserController extends Controller {
 			$responseData['meta']['code'] = 500;
 			$responseData['data'] = array("status"=>"failure");
 		}
+		return response()->json($responseData);	
 	}
 
 	/**
