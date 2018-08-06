@@ -10,6 +10,7 @@ use App\User;
 use DB;
 use Hash;
 use Exception;
+use Mail;
 //use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
@@ -28,6 +29,7 @@ class UserController extends Controller {
 	public function test(Request $request){
 		var_dump($request->all());
 	}
+
 
 	public function social_login(Request $request) {
 		$responseData = array();
@@ -391,7 +393,6 @@ class UserController extends Controller {
 			$responseData['data'] = $nuser;
 
 		} catch (Exception $e) {
-
 			$responseData = array();
 			$responseData['meta']['status'] = 'failure';
 			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage().$e->getLine();
@@ -401,21 +402,6 @@ class UserController extends Controller {
 		return response()->json($responseData);
 	}
 
-	public function logout(Request $request) {
-
-		try {
-			echo $request->token;
-			$user = JWTAuth::toUser($request->token);
-			$user = User::findOrFail($user['id']);
-			$user->device_id = '';
-			$user->save();
-			$user = JWTAuth::invalidate($request->token);
-
-			return response()->json(['status' => 0, 'message' => 'Logged Out', 'result' => null]);
-		} catch (Exception $e) {
-			return response()->json(['status' => 1, 'message' => 'Error', 'result' => $e->getMessage()]);
-		}
-	}
 
 	public function changePassword(Request $request) {
 
@@ -433,10 +419,6 @@ class UserController extends Controller {
 			}
 			return response()->json(['status' => 1, 'message' => $message, 'result' => null]);
 		}
-
-		/*if ($validator->fails()) {
-			return response()->json(['status' => 1, 'message' => 'Error', 'result' => $validator->errors()]);
-		}*/
 
 		try {
 			$user = JWTAuth::toUser($request->token);
@@ -461,182 +443,34 @@ class UserController extends Controller {
 
 	public function forgotPassword(Request $request) {
 		try {
-			$validator = Validator::make($request->all(), [
-				'email' => 'required|string|email',
-			]);
-
-			if ($validator->fails()) {
-				$result = json_decode($validator->errors(), true);
-				$message = '';
-				foreach ($result as $value) {
-					$message = implode(', ', $value);
-					break;
-				}
-				return response()->json(['status' => 1, 'message' => $message, 'result' => null]);
-			}
-
-			/*if ($validator->fails()) {
-				return response()->json(['status' => 1, 'message' => 'Email is required', 'result' => null]);
-			}*/
-
-			$user = User::where('email', $request->input('email'))->first();
-			if (!empty($user)) {
-				$response = Password::sendResetLink(["email" => $request->input('email')]);
-
-				if (Password::RESET_LINK_SENT == $response) {
-					return response()->json([
-						'status' => '0',
-						'message' => 'We have e-mailed your password reset link!',
-						'result' => null,
-					]);
-				} else {
-					return response()->json([
-						'status' => '1',
-						'message' => 'Opss..! Something went wrong,please try again.',
-						'result' => null,
-					]);
-				}
-			} else {
-				return response()->json([
-					'status' => '1',
-					'message' => "We can't find this e-mail address.",
-					'result' => null,
-				]);
+			$uniqid = uniqid();
+			$password = bcrypt($uniqid);
+			$user = User::where('email', $request->get('email'))->first();
+			if($user){
+				DB::table('users')->where('id',$user->id)->update(['password'=>$password]);
+				$message = 'Hello, Your Temporary Login password is :'.$uniqid;
+				Mail::raw('Text', function ($message){
+				    $message->to($user->email);
+				});
+				$responseData = array();
+				$responseData['meta']['status'] = 'success';
+				$responseData['meta']['message'] = 'Password reset and email sent.';
+				$responseData['meta']['code'] = 200;
+				$responseData['data'] = array("status"=>"success");	
+			}else{
+				$responseData = array();
+				$responseData['meta']['status'] = 'failure';
+				$responseData['meta']['message'] = 'No such user found.';
+				$responseData['meta']['code'] = 200;
+				$responseData['data'] = array("status"=>"failure");		
 			}
 		} catch (Exception $e) {
-			return response()->json([
-				'status' => '0',
-				'message' => $e->getMessage(),
-				'result' => null,
-			]);
+			$responseData = array();
+			$responseData['meta']['status'] = 'failure';
+			$responseData['meta']['message'] = 'Catched Error:'.$e->getMessage().$e->getLine();
+			$responseData['meta']['code'] = 400;
+			$responseData['data'] = array("status"=>"failure");	
 		}
+		return $response->json($responseData);
 	}
-
-	public function delete_account(Request $request) {
-		$validator = Validator::make($request->all(), [
-			'curr_password' => 'required|min:6',
-		]);
-
-		if ($validator->fails()) {
-			$result = json_decode($validator->errors(), true);
-			$message = '';
-			foreach ($result as $value) {
-				$message = implode(', ', $value);
-				break;
-			}
-			return response()->json(['status' => 1, 'message' => $message, 'result' => null]);
-		}
-
-		/*if ($validator->fails()) {
-			return response()->json(['status' => 1, 'message' => 'Error', 'result' => $validator->errors()]);
-		}*/
-		try {
-			$user = JWTAuth::toUser($request->token);
-			$user_id = $user->id;
-			if (Hash::check($request->curr_password, $user->password)) {
-				$user_id = $user_id;
-
-				$messages = DB::table('messages')->where('created_by', $user_id)->get();
-				if (isset($messages) && count($messages)) {
-					foreach ($messages as $message) {
-						$msgid = $message->id;
-
-						if ($message->images != null) {
-							$image_arr = explode(",", $message->images);
-							if (isset($image_arr) && count($image_arr)) {
-								foreach ($image_arr as $image) {
-									if (file_exists(public_path() . '/images/media/images/' . $image)) {
-										unlink(public_path() . '/images/media/images/' . $image);
-									}
-								}
-							}
-						}
-
-						if ($message->videos != null) {
-							$video_arr = explode(",", $message->videos);
-							if (isset($video_arr) && count($video_arr)) {
-								foreach ($video_arr as $video) {
-									if (file_exists(public_path() . '/images/media/video/' . $video)) {
-										unlink(public_path() . '/images/media/video/' . $video);
-									}
-								}
-							}
-						}
-
-						$favorite = FavoriteList::select('*')->get();
-						foreach ($favorite as $key) {
-							if ($key->msg_id != '') {
-								$MsgList = explode(',', $key->msg_id);
-								if (in_array($msgid, $MsgList)) {
-									$update_fav = FavoriteList::find($key->id);
-									$findex = array_search($msgid, $MsgList);
-									unset($MsgList[$findex]);
-									$update_fav->msg_id = implode(',', $MsgList);
-									$update_fav->save();
-								}
-
-							}
-						}
-
-						$deletemsg = DB::table('messages')->where('id', $msgid)->delete();
-					}
-				}
-
-				$community = DB::table('community')->where('user_id', $user_id)->delete();
-				$favorite = DB::table('favorite_list')->where('user_id', $user_id)->delete();
-				$IgnoreList = DB::table('ignore_list')->where('sender_id', $user_id)->orWhere('user_id', $user_id)->delete();
-				$business = DB::table('business')->where('user_id', $user_id)->get();
-				if (isset($business) && count($business)) {
-					foreach ($business as $busi) {
-						if ($busi->logo != null && file_exists(public_path() . '/images/business/' . $busi->logo)) {
-							unlink(public_path() . '/images/business/' . $busi->logo);
-						}
-
-						if ($busi->id_proof != null && file_exists(public_path() . '/images/business/' . $busi->id_proof)) {
-							unlink(public_path() . '/images/business/' . $busi->id_proof);
-						}
-
-						if ($busi->address_proof != null && file_exists(public_path() . '/images/business/' . $busi->address_proof)) {
-							unlink(public_path() . '/images/business/' . $busi->address_proof);
-						}
-
-						if ($busi->business_images != null) {
-							$busi_img_arr = explode(",", $busi->business_images);
-							if (isset($busi_img_arr) && count($busi_img_arr)) {
-								foreach ($busi_img_arr as $busi_img) {
-									if (file_exists(public_path() . '/images/business/media/' . $busi_img)) {
-										unlink(public_path() . '/images/business/media/' . $busi_img);
-									}
-								}
-							}
-						}
-					}
-				}
-				$business = DB::table('business')->where('user_id', $user_id)->delete();
-
-				$adverts = DB::table('adverts')->where('user_id', $user_id)->get();
-				if (isset($adverts) && count($adverts)) {
-					foreach ($adverts as $advert) {
-						$advtid = $advert->id;
-						if ($advert->advert_type == 1) {
-							if ($advert->advert_content != null && file_exists(public_path() . '/images/adverts/' . $advert->advert_content)) {
-								unlink(public_path() . '/images/adverts/' . $advert->advert_content);
-							}
-						}
-						$advt = DB::table('adverts')->where('id', $advtid)->delete();
-					}
-
-				}
-
-				$user = DB::table('users')->where('id', $user_id)->delete();
-
-				return response()->json(['status' => 0, 'message' => 'User deleted successfully', 'result' => null]);
-			} else {
-				return response()->json(['status' => 1, 'message' => 'Please enter your current password', 'result' => null]);
-			}
-		} catch (Exception $e) {
-			return response()->json(['status' => 1, 'message' => 'Error', 'result' => $e->getMessage()]);
-		}
-	}
-
 }

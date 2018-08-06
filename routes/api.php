@@ -29,3 +29,4 @@ Route::post('/v1/get_categories','Api\p1\MainController@get_categories');
 Route::post('/v1/get_vehicles','Api\p1\MainController@get_vehicles');
 Route::post('/v1/add_vehicles','Api\p1\MainController@add_vehicles');
 Route::post('/v1/social_login','Api\UserController@social_login');
+Route::post('/v1/forget_password','Api\UserController@forgotPassword');
