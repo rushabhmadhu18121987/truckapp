@@ -71,6 +71,7 @@ class UserController extends Controller {
 	 * @return \App\User
 	 */
 	protected function create($data) {
+		$sm_id= "";
 
 		if($data->has('user_login_type')){
 			if($data->user_login_type=='email'){
@@ -96,7 +97,7 @@ class UserController extends Controller {
 				$sm_id = "";
 			}else{
 				$profile_image = $data->profile_image;
-				$sm_id=$request->get('sm_id');
+				$sm_id=$data->get('sm_id');
 			}
 		}
 
