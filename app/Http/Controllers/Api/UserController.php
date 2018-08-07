@@ -96,7 +96,6 @@ class UserController extends Controller {
 			if($data->user_login_type=='email'){
 				$sm_id = "";
 			}else{
-				$profile_image = $data->profile_image;
 				$sm_id=$data->get('sm_id');
 			}
 		}
@@ -114,6 +113,8 @@ class UserController extends Controller {
 			'is_subscribers' => $data->is_subscribers,
 			'user_login_type' => $data->user_login_type,
 			'status' => 1,
+			'address'=>'',
+			'city'=>'',
 			'is_verify' => $is_verify,
 			'driving_licence_doc' => $data->driving_licence_doc,
 			'sm_id' => $sm_id,
@@ -161,12 +162,15 @@ class UserController extends Controller {
 
 		try{
 			$user = $this->create($request);
-			dispatch(new SendVerificationEmail($user));
+			if(strlen($user->sm_id)==0){
+				dispatch(new SendVerificationEmail($user));
+			}
+			$userData = User::where('id',$user->id)->first();
 			$responseData = array();
 			$responseData['meta']['status'] = 'success';
 			$responseData['meta']['message'] = 'User created successfully';
 			$responseData['meta']['code'] = 200;
-			$responseData['data'] = $user;
+			$responseData['data'] = $userData;
 		}catch(Exception $e){
 			$responseData = array();
 			$responseData['meta']['status'] = 'failure';
@@ -363,31 +367,40 @@ class UserController extends Controller {
 
 	public function update_profile(Request $request) {
 		try {
-			$user = JWTAuth::toUser($request->header('token'));
-		    $nuser = User::findOrFail($user->id);
-		    
+			//$user = JWTAuth::toUser($request->header('token'));
+		    $nuser = User::findOrFail($request->get('user_id'));
+		    $id = $request->get('user_id');
+		    $existingUsers = User::where('email',trim($request->get('email')))->whereNotIn('id',[$request->get('user_id')])->get();
+
+		    if(count($existingUsers)>=2 || (count($existingUsers)==1 && $existingUsers[0]->id!=$id)){
+				$responseData['meta']['status'] = 'failure';
+				$responseData['meta']['message'] = 'New email is already exist in our system.';
+				$responseData['meta']['code'] = 200;
+				$responseData['data'] = array('status'=>'failure');
+				return response()->json($responseData);		    	
+		    }
 			$nuser->firstname = $request->firstname;
 			$nuser->lastname = $request->lastname;
 			$nuser->mobile = $request->mobile;
 			$nuser->address = $request->address;
 			$nuser->city = $request->city;
+			$nuser->email = $request->email;
 
-			if ($request->profile_image != "") {
-				$image = $request->file('profile_image');
+			if ($request->hasFile('profile_img')) {
+				$image = $request->file('profile_img');
 				$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
 				$destinationPath = public_path() . '/uploads/profile/';
 				$image->move($destinationPath, $fileName);
 				chmod($destinationPath . "/" . $fileName, 0777);
 				$profile_image = $fileName;
 
-				if ($nuser->profile_img != null && file_exists(public_path() . '/images/profile/' . $nuser->profile_img)) {
-					unlink(public_path() . '/images/profile/' . $nuser->profile_img);
+				if ($nuser->profile_image != null && file_exists(public_path() . '/images/profile/' . $nuser->profile_image)) {
+					unlink(public_path() . '/images/profile/' . $nuser->profile_image);
 				}
-				$nuser->profile_img = $fileName;
+				$nuser->profile_image = $fileName;
 			}
 			$nuser->save();
-			$nuser->token = $request->header('token');
-
+			//$nuser->token = $request->header('token');
 			$responseData['meta']['status'] = 'success';
 			$responseData['meta']['message'] = 'Profile updated successfully';
 			$responseData['meta']['code'] = 200;

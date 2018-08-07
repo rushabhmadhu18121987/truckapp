@@ -9,14 +9,15 @@ use JWTAuth;
 use Mail;
 use Validator;
 use Exception;
+use App\User;
 use App\Vehicle;
 
 class MainController extends Controller
 {
     public function get_vehicles(Request $request) {
         try{
-            $token = $request->header('token');
-            $user = JWTAuth::toUser($token);
+            //$token = $request->header('token');
+           // $user = JWTAuth::toUser($token);
             if($request->has('category_id')){
                 $category_id = $request->get('category_id');
                 $vehicles = Vehicle::where('type',$category_id)->select('*')->get();
@@ -47,12 +48,13 @@ class MainController extends Controller
     public function add_vehicles(Request $request) {
         try{
             $token = $request->header('token');
+            if(strlen($token))
             $user = JWTAuth::toUser($token);
 
             $vehicle = new Vehicle();
             $vehicle->user_id = $request['user_id'];
             $vehicle->title = $request['title'];
-            $vehicle->category_type = $request['category_type'];
+            $vehicle->type = $request['category_type'];
             $vehicle->make = $request['make'];
             $vehicle->model = $request['model'];
             $vehicle->color = $request['color'];
@@ -83,7 +85,7 @@ class MainController extends Controller
             $vehicle->hours_price   = $request['hours_price'];
             $vehicle->daily_price = $request['daily_price'];
             $vehicle->weekly_price = $request['weekly_price'];
-            $vehicle->mothly_price = $request['mothly_price'];
+            $vehicle->monthly_price = $request['monthly_price'];
             $vehicle->status = $request['status'];
             $vehicle->save();
 
@@ -105,8 +107,10 @@ class MainController extends Controller
 
 	public function getprofile(Request $request) {
         try{
-            $token = $request->header('token');
-            $user = JWTAuth::toUser($token);
+            //$token = $request->header('token');
+            //$user = JWTAuth::toUser($token);
+            $user_id =$request->get('user_id');
+            $user=User::where('id',$user_id)->first();
             $responseData = array();
             $responseData['meta']['status'] = 'success';
             $responseData['meta']['message'] = 'User profile successfully';
@@ -168,6 +172,4 @@ class MainController extends Controller
         $responseData['data'] = $user;
         return response()->json($responseData);
     }
-
-
 }
