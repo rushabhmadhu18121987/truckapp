@@ -74,26 +74,26 @@ class UserController extends Controller {
 		$sm_id= "";
 
 		if($data->has('user_login_type')){
-			if($data->user_login_type=='email'){
-				if($data->hasFile('profile_image')){
-					$image = $data->file('profile_image');
-					$validFileExtentions = array('jpg','gif','jpeg','png','JPG','GIF','PNG','JPEG');
-					if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
-						$responseData = array();
-						$responseData['meta']['status'] = 'failure';
-						$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
-						$responseData['meta']['code'] = 500;
-						$responseData['data'] = array("status"=>"failure");
-						return response()->json($responseData);	
-					}
-					$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
-					$destinationPath = public_path() . '/uploads/profile/';
-					$image->move($destinationPath, $fileName);
-					chmod($destinationPath . "/" . $fileName, 0777);
-					$profile_image = $fileName;
-				}else{
-					$profile_image = '';
+			if($data->hasFile('profile_image')){
+				$image = $data->file('profile_image');
+				$validFileExtentions = array('jpg','gif','jpeg','png','JPG','GIF','PNG','JPEG');
+				if(!in_array($image->getClientOriginalExtension(), $validFileExtentions)){
+					$responseData = array();
+					$responseData['meta']['status'] = 'failure';
+					$responseData['meta']['message'] = 'Invalid Profile Image. Allowed(.jpg, .png, .gif';
+					$responseData['meta']['code'] = 500;
+					$responseData['data'] = array("status"=>"failure");
+					return response()->json($responseData);	
 				}
+				$fileName = 'Profile-' . date('Hsi') . '.' . $image->getClientOriginalExtension();
+				$destinationPath = public_path() . '/uploads/profile/';
+				$image->move($destinationPath, $fileName);
+				chmod($destinationPath . "/" . $fileName, 0777);
+				$profile_image = $fileName;
+			}else{
+				$profile_image = '';
+			}
+			if($data->user_login_type=='email'){
 				$sm_id = "";
 			}else{
 				$profile_image = $data->profile_image;
